@@ -1,25 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <title>NEXRAD Archive</title>
+  <meta http-equiv="refresh" content="0; url=login.html">
+  <title>Redirecting...</title>
 </head>
-<body style="background: #050a0f; color: #c8e6f8; font-family: Rajdhani, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
-  <div style="text-align: center;">
-    <h1 style="font-size: 2.5rem; margin-bottom: 20px;">Loading...</h1>
-  </div>
-
-  <script>
-    const isLoggedIn = sessionStorage.getItem('nexrad_loggedIn');
-    if (isLoggedIn) {
-      window.location.replace('app.html');
-    } else {
-      window.location.replace('login.html?t=' + Date.now());
-    }
-  </script>
+<body>
+  <p><a href="login.html">Click here if not redirected</a></p>
 </body>
 </html>
