@@ -6,13 +6,9 @@
 <title>NEXRAD Archive Browser</title>
 <script>
 // Authentication check — redirect to login page if not authenticated
-(function(){
-  const isLoggedIn = sessionStorage.getItem('nexrad_loggedIn');
-  if(!isLoggedIn){
-    window.location.href = 'login.html?t=' + Date.now();
-    throw new Error('Not authenticated');
-  }
-})();
+if(!sessionStorage.getItem('nexrad_loggedIn')){
+  window.location.replace('login.html?t=' + Date.now());
+}
 </script>
 <script>
 // Lightweight TAR builder — no external dependency, no Windows scanning issues
