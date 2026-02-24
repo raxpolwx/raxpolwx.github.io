@@ -7,7 +7,9 @@
 <script>
 // Authentication check — redirect to login page if not authenticated
 if(!sessionStorage.getItem('nexrad_loggedIn')){
+  window.stop();
   window.location.replace('login.html?t=' + Date.now());
+  document.body.innerHTML = '';
 }
 </script>
 <script>
