@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NEXRAD Archive Browser</title>
+<script>
+if(!sessionStorage.getItem('nexrad_loggedIn')){
+  window.location.replace('login.html?t=' + Date.now());
+}
+</script>
 
 <script>
 // Lightweight TAR builder — no external dependency, no Windows scanning issues
