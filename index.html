@@ -5,6 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NEXRAD Archive Browser</title>
 <script>
+// Password protection
+(function(){
+  const passwordHash = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'; // sha256('password')
+  const storedAuth = sessionStorage.getItem('nexrad_auth');
+  
+  if(!storedAuth){
+    const pass = prompt('Enter password to access NEXRAD Archive:');
+    if(!pass){
+      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:monospace;color:#999;font-size:14px;">Access denied.</div>';
+      throw new Error('Access denied');
+    }
+    
+    // Simple check - in production use proper backend auth
+    if(pass !== 'password'){
+      alert('Incorrect password');
+      location.reload();
+    }
+    sessionStorage.setItem('nexrad_auth', 'true');
+  }
+})();
+</script>
+<script>
 // Lightweight TAR builder — no external dependency, no Windows scanning issues
 const TarBuilder = {
   _hdr(name, size){
