@@ -204,10 +204,8 @@
     </div>
   </div>
 
-  <!-- APP SCREEN - PLACEHOLDER -->
-  <div id="appScreen" class="app-container">
-    <!-- App content will load here -->
-  </div>
+  <!-- APP SCREEN -->
+  <div id="appScreen" class="app-container"></div>
 
   <script>
     // CREDENTIALS
@@ -264,25 +262,51 @@
       }
     });
 
-    // LOAD APP CONTENT (via fetch from app.html)
-    async function loadAppContent() {
-      try {
-        const response = await fetch('app-content.html');
-        if (response.ok) {
-          const html = await response.text();
-          document.getElementById('appScreen').innerHTML = html;
-          // Re-run any scripts that were in app-content.html
-          const scripts = document.getElementById('appScreen').querySelectorAll('script');
+    // LOAD APP CONTENT
+    function loadAppContent() {
+      const appScreen = document.getElementById('appScreen');
+      appScreen.innerHTML = getAppHTML();
+      // Execute scripts from app
+      executeAppScripts();
+    }
+    
+    function getAppHTML() {
+      return `<div class="container" id="appContainer"><!-- App content loaded --></div>`;
+    }
+    
+    function executeAppScripts() {
+      // Load the app content from iframe or direct injection
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = 'app-content.html';
+      document.body.appendChild(iframe);
+      
+      iframe.onload = function() {
+        try {
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+          const appHTML = iframeDoc.body.innerHTML;
+          document.getElementById('appScreen').innerHTML = appHTML;
+          
+          // Copy over styles
+          const styles = iframeDoc.querySelectorAll('style');
+          styles.forEach(style => {
+            const newStyle = document.createElement('style');
+            newStyle.textContent = style.textContent;
+            document.head.appendChild(newStyle);
+          });
+          
+          // Execute scripts
+          const scripts = iframeDoc.querySelectorAll('script');
           scripts.forEach(script => {
             const newScript = document.createElement('script');
             newScript.textContent = script.textContent;
             document.body.appendChild(newScript);
           });
+        } catch (e) {
+          console.error('Failed to load app content:', e);
         }
-      } catch (error) {
-        console.error('Failed to load app:', error);
-        document.getElementById('appScreen').innerHTML = '<p style="padding: 20px;">Error loading app. Please refresh.</p>';
-      }
+        iframe.remove();
+      };
     }
   </script>
 </body>
