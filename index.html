@@ -45,9 +45,144 @@
       z-index: 0;
     }
 
-    header {
+    /* LOGIN SCREEN */
+    .login-screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 100;
+    }
+
+    .login-screen.hidden {
+      display: none;
+    }
+
+    .login-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 40px;
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+      width: 100%;
+      max-width: 350px;
+      position: relative;
+    }
+
+    .login-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .login-logo h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+
+    .login-logo h2 span {
+      color: var(--accent);
+    }
+
+    .login-logo p {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      margin-bottom: 8px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.85rem;
+      border-radius: 4px;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .form-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.2), inset 0 0 8px rgba(0, 212, 255, 0.05);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 212, 255, 0.05));
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.3s;
+      margin-top: 24px;
+    }
+
+    .login-btn:hover {
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+      border-color: var(--accent2);
+    }
+
+    .error-msg {
+      color: #ff6b6b;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      margin-top: 12px;
+      padding: 12px;
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      border-radius: 4px;
+      display: none;
+    }
+
+    /* HOME SCREEN */
+    .home-screen {
+      display: none;
       position: relative;
       z-index: 1;
+    }
+
+    .home-screen.active {
+      display: block;
+    }
+
+    header {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -73,6 +208,7 @@
     nav {
       display: flex;
       gap: 30px;
+      align-items: center;
     }
 
     nav a {
@@ -87,6 +223,25 @@
 
     nav a:hover {
       color: var(--accent);
+    }
+
+    .logout-btn {
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--text-dim);
+      color: var(--text-dim);
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: all 0.3s;
+    }
+
+    .logout-btn:hover {
+      border-color: #ff6b6b;
+      color: #ff6b6b;
     }
 
     .container {
@@ -136,6 +291,7 @@
       text-transform: uppercase;
       border-radius: 4px;
       transition: all 0.3s;
+      cursor: pointer;
     }
 
     .cta-btn:hover {
@@ -196,43 +352,134 @@
   </style>
 </head>
 <body>
-  <header>
-    <div class="logo">
-      ⬡ RaxPol <span>WX</span>
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-box">
+      <div class="login-logo">
+        <h2>RaxPol <span>WX</span></h2>
+        <p>⬡ Login Required</p>
+      </div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="Enter username" autocomplete="off" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter password" autocomplete="off" required>
+        </div>
+        <button type="submit" class="login-btn">⬡ Login</button>
+        <div class="error-msg" id="errorMsg"></div>
+      </form>
     </div>
-    <nav>
-      <a href="#home">Home</a>
-      <a href="nexrad.html">NEXRAD Archive</a>
-      <a href="datasets.html">Data Upload</a>
-      <a href="#about">About</a>
-    </nav>
-  </header>
-
-  <div class="container">
-    <section class="hero">
-      <h1>RaxPol <span>WX</span></h1>
-      <p>Advanced Weather Intelligence & NEXRAD Analysis Platform</p>
-      <a href="nexrad.html" class="cta-btn">⬡ Access NEXRAD Archive</a>
-    </section>
-
-    <section class="features">
-      <div class="feature-card">
-        <h3>NEXRAD Archive</h3>
-        <p>Browse and download Level II NEXRAD radar data from NOAA and Unidata archives. Filter by station, date, and time range with ease.</p>
-      </div>
-      <div class="feature-card">
-        <h3>Storm Analysis</h3>
-        <p>Integrate SPC Storm Reports and NCEI Storm Events data to correlate significant weather events with radar observations.</p>
-      </div>
-      <div class="feature-card">
-        <h3>Bulk Export</h3>
-        <p>Download multiple radar files at once. TAR packaging support for efficient data management and transfer.</p>
-      </div>
-    </section>
   </div>
 
-  <footer>
-    RaxPol WX &copy; 2024 | Weather Intelligence Platform | Built on NOAA & Unidata Data
-  </footer>
+  <!-- HOME SCREEN -->
+  <div id="homeScreen" class="home-screen">
+    <header>
+      <div class="logo">
+        ⬡ RaxPol <span>WX</span>
+      </div>
+      <nav>
+        <a href="#nexrad" onclick="navigateTo('nexrad.html')">NEXRAD Archive</a>
+        <a href="#datasets" onclick="navigateTo('datasets.html')">Data Upload</a>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </nav>
+    </header>
+
+    <div class="container">
+      <section class="hero">
+        <h1>RaxPol <span>WX</span></h1>
+        <p>Advanced Weather Intelligence & NEXRAD Analysis Platform</p>
+        <a href="#nexrad" onclick="navigateTo('nexrad.html')" class="cta-btn">⬡ Access NEXRAD Archive</a>
+      </section>
+
+      <section class="features">
+        <div class="feature-card">
+          <h3>NEXRAD Archive</h3>
+          <p>Browse and download Level II NEXRAD radar data from NOAA and Unidata archives. Filter by station, date, and time range with ease.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Storm Analysis</h3>
+          <p>Integrate SPC Storm Reports and NCEI Storm Events data to correlate significant weather events with radar observations.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Data Upload</h3>
+          <p>Upload your own datasets securely. Manage and organize custom weather data with a private, authenticated interface.</p>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      RaxPol WX &copy; 2024 | Weather Intelligence Platform | Built on NOAA & Unidata Data
+    </footer>
+  </div>
+
+  <script>
+    const ACCOUNTS = {
+      'admin': 'nexrad2024',
+      'user': 'welcome123'
+    };
+
+    // Check auth on load
+    window.addEventListener('DOMContentLoaded', function() {
+      if (sessionStorage.getItem('raxpolwx_loggedIn')) {
+        showHome();
+      } else {
+        showLogin();
+      }
+      document.getElementById('username').focus();
+    });
+
+    function showLogin() {
+      document.getElementById('loginScreen').classList.remove('hidden');
+      document.getElementById('homeScreen').classList.remove('active');
+    }
+
+    function showHome() {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('homeScreen').classList.add('active');
+    }
+
+    // Login handler
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const errorDiv = document.getElementById('errorMsg');
+      
+      errorDiv.style.display = 'none';
+      
+      if (!username || !password) {
+        errorDiv.textContent = 'Enter both username and password';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      
+      if (ACCOUNTS[username] === password) {
+        sessionStorage.setItem('raxpolwx_loggedIn', 'true');
+        showHome();
+      } else {
+        errorDiv.textContent = 'Invalid username or password';
+        errorDiv.style.display = 'block';
+        document.getElementById('password').value = '';
+        document.getElementById('password').focus();
+      }
+    });
+
+    function logout() {
+      if (confirm('Logout?')) {
+        sessionStorage.removeItem('raxpolwx_loggedIn');
+        location.reload();
+      }
+    }
+
+    function navigateTo(page) {
+      if (sessionStorage.getItem('raxpolwx_loggedIn')) {
+        window.location.href = page;
+      }
+    }
+  </script>
 </body>
 </html>

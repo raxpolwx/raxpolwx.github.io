@@ -382,10 +382,10 @@
 
     // Check auth on load
     window.addEventListener('DOMContentLoaded', function() {
-      if (sessionStorage.getItem('uploads_loggedIn')) {
+      if (sessionStorage.getItem('raxpolwx_loggedIn')) {
         showApp();
       } else {
-        showLogin();
+        window.location.href = 'index.html';
       }
       renderDatasets();
     });
@@ -417,8 +417,8 @@
     });
 
     function logout() {
-      sessionStorage.removeItem('uploads_loggedIn');
-      location.reload();
+      sessionStorage.removeItem('raxpolwx_loggedIn');
+      window.location.href = 'index.html';
     }
 
     // File upload handlers
