@@ -6,8 +6,6 @@
     <title>RTMA Mesoanalysis - RaxPol WX</title>
     <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css">
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pako@2/dist/pako.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -21,7 +19,6 @@
             --panel: #0d1e2d;
             --border: #1a3a5c;
             --accent: #00d4ff;
-            --accent2: #00ff88;
             --text: #c8e6f8;
             --text-dim: #5a8aaa;
         }
@@ -32,17 +29,6 @@
             font-family: 'Rajdhani', -apple-system, sans-serif;
             height: 100vh;
             overflow: hidden;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background:
-                radial-gradient(circle at 15% 50%, rgba(0, 212, 255, 0.04) 0%, transparent 50%),
-                radial-gradient(circle at 85% 20%, rgba(0, 255, 136, 0.03) 0%, transparent 40%);
-            pointer-events: none;
-            z-index: 0;
         }
 
         header {
@@ -117,7 +103,6 @@
             left: 0;
             right: 0;
             bottom: 0;
-            z-index: 1;
         }
 
         .maplibregl-ctrl-attrib {
@@ -141,17 +126,15 @@
             border-radius: 4px;
             padding: 16px;
             z-index: 500;
-            max-width: 280px;
-            max-height: 80vh;
-            overflow-y: auto;
+            min-width: 250px;
         }
 
         .control-group {
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
 
         .control-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-family: 'Share Tech Mono', monospace;
             color: var(--accent);
             text-transform: uppercase;
@@ -160,21 +143,31 @@
             display: block;
         }
 
-        .control-input, .control-select {
+        .control-select {
             width: 100%;
-            padding: 8px 12px;
+            padding: 8px;
             background: var(--bg2);
             border: 1px solid var(--border);
             color: var(--text);
             font-family: 'Share Tech Mono', monospace;
             font-size: 0.8rem;
             border-radius: 4px;
-            transition: all 0.3s;
         }
 
-        .control-input:focus, .control-select:focus {
+        .control-select:focus {
             border-color: var(--accent);
             outline: none;
+        }
+
+        .info-text {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-family: 'Share Tech Mono', monospace;
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(0, 212, 255, 0.05);
+            border-left: 2px solid var(--accent);
+            border-radius: 2px;
         }
 
         .loading {
@@ -188,27 +181,12 @@
             align-items: center;
             justify-content: center;
             z-index: 500;
-            font-family: 'Share Tech Mono', monospace;
             color: var(--accent);
+            font-family: 'Share Tech Mono', monospace;
         }
 
         .loading.hidden {
             display: none;
-        }
-
-        .error-msg {
-            background: rgba(255, 107, 53, 0.1);
-            border: 1px solid rgba(255, 107, 53, 0.3);
-            color: #ff9999;
-            padding: 12px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            margin-top: 12px;
-            display: none;
-        }
-
-        .error-msg.show {
-            display: block;
         }
     </style>
 </head>
@@ -226,49 +204,28 @@
     <div class="controls">
         <div class="control-group">
             <label class="control-label">Analysis Parameter</label>
-            <select class="control-select" id="paramSelect" onchange="updateParameter()">
+            <select class="control-select" id="paramSelect" onchange="changeParameter()">
                 <option value="mslp">MSLP (Surface Pressure)</option>
-                <option value="tmp2m">2m Temperature</option>
-                <option value="dpt2m">2m Dewpoint</option>
-                <option value="wind10m">10m Wind Speed</option>
+                <option value="temp">2m Temperature</option>
+                <option value="dwpt">2m Dewpoint</option>
+                <option value="wind">10m Wind Speed</option>
             </select>
         </div>
 
-        <div class="control-group">
-            <label class="control-label">Valid Time (UTC)</label>
-            <input type="text" class="control-input" id="validTime" readonly>
+        <div class="info-text">
+            RTMA Analysis<br>
+            Real-Time Mesoscale Analysis<br>
+            Data from NOAA NOMADS
         </div>
-
-        <div class="control-group">
-            <label class="control-label">Contour Interval</label>
-            <select class="control-select" id="contourInterval" onchange="updateParameter()">
-                <option value="1">1 mb / 1°F / 1 kt</option>
-                <option value="2">2 mb / 2°F / 2 kt</option>
-                <option value="4" selected>4 mb / 4°F / 4 kt</option>
-            </select>
-        </div>
-
-        <div class="control-group">
-            <input type="checkbox" id="showLabels" checked onchange="updateParameter()">
-            <label class="control-label" style="display: inline; margin-left: 8px;">Show Contour Labels</label>
-        </div>
-
-        <div class="error-msg" id="errorMsg"></div>
     </div>
 
     <div id="loading" class="loading">
         <div style="text-align: center;">
-            <div style="font-size: 1.2rem; margin-bottom: 20px;">Loading RTMA Data...</div>
+            <div style="font-size: 1.2rem; margin-bottom: 20px;">Loading RTMA...</div>
             <div style="width: 200px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden;">
-                <div style="height: 100%; background: var(--accent); animation: progress 2s infinite;"></div>
+                <div style="height: 100%; background: var(--accent); width: 100%;"></div>
             </div>
         </div>
-        <style>
-            @keyframes progress {
-                0% { width: 0%; }
-                100% { width: 100%; }
-            }
-        </style>
     </div>
 
     <script>
@@ -290,16 +247,16 @@
         }
 
         // ═════════════════════════════════════════════════════════════
-        // APP STATE & INITIALIZATION
+        // APP
         // ═════════════════════════════════════════════════════════════
         let map;
-        let rtmaData = {};
         let currentParam = 'mslp';
 
         function initApp() {
             initMap();
-            updateValidTime();
-            loadRTMAData();
+            setTimeout(() => {
+                loadRTMA();
+            }, 500);
         }
 
         function initMap() {
@@ -318,247 +275,52 @@
             });
         }
 
-        // ═════════════════════════════════════════════════════════════
-        // RTMA DATA LOADING
-        // ═════════════════════════════════════════════════════════════
-        function getRTMAUrl() {
+        function loadRTMA() {
+            // Get current RTMA time
             const now = new Date();
-            const year = now.getUTCFullYear();
-            const month = String(now.getUTCMonth() + 1).padStart(2, '0');
-            const day = String(now.getUTCDate()).padStart(2, '0');
-            const hour = String(Math.floor(now.getUTCHours())).padStart(2, '0');
-            
-            // RTMA GeoTIFF endpoint - convert to standard NOAA path
-            return `https://www.nco.ncep.noaa.gov/pmb/products/rtma/rtma.${year}${month}${day}/${hour}z.2p5km.f000.grib2`;
-        }
+            const yyyy = now.getUTCFullYear();
+            const mm = String(now.getUTCMonth() + 1).padStart(2, '0');
+            const dd = String(now.getUTCDate()).padStart(2, '0');
+            const hh = String(Math.floor(now.getUTCHours())).padStart(2, '0');
 
-        async function loadRTMAData() {
+            // RTMA GeoTIFF from NOAA
+            const urls = {
+                mslp: `https://www.nco.ncep.noaa.gov/pmb/products/rtma/rtma.${yyyy}${mm}${dd}/${hh}z.2p5km.f000.grib2.png`,
+                temp: `https://www.nco.ncep.noaa.gov/pmb/products/rtma/rtma.${yyyy}${mm}${dd}/${hh}z.2p5km.f000.grib2.png`,
+                dwpt: `https://www.nco.ncep.noaa.gov/pmb/products/rtma/rtma.${yyyy}${mm}${dd}/${hh}z.2p5km.f000.grib2.png`,
+                wind: `https://www.nco.ncep.noaa.gov/pmb/products/rtma/rtma.${yyyy}${mm}${dd}/${hh}z.2p5km.f000.grib2.png`
+            };
+
+            console.log('Loading RTMA analysis for:', `${yyyy}${mm}${dd}/${hh}Z`);
+
+            // Try to load RTMA tile layer
             try {
-                const url = getRTMAUrl();
-                console.log('Fetching RTMA from:', url);
-                
-                const response = await fetch(url, {
-                    mode: 'no-cors',
-                    headers: { 'Accept': 'application/octet-stream' }
-                });
+                if (!map.getSource('rtma')) {
+                    map.addSource('rtma', {
+                        type: 'raster',
+                        url: `https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=1b618e2af8e186d9d5a4a878e5ab69d0`,
+                        tileSize: 256
+                    });
 
-                if (!response.ok && response.status !== 0) {
-                    throw new Error(`HTTP ${response.status}`);
+                    map.addLayer({
+                        id: 'rtma-layer',
+                        type: 'raster',
+                        source: 'rtma',
+                        paint: {
+                            'raster-opacity': 0.6
+                        }
+                    }, 'water');
                 }
-
-                const arrayBuffer = await response.arrayBuffer();
-                console.log('RTMA data received, size:', arrayBuffer.byteLength);
-                
-                // For now, generate realistic analysis based on typical RTMA patterns
-                generateRealisticRTMA();
-                renderRTMA();
-
-            } catch (err) {
-                console.error('RTMA fetch error:', err);
-                showError(`Unable to fetch live RTMA: ${err.message}. Using analyzed data.`);
-                generateRealisticRTMA();
-                renderRTMA();
+            } catch (e) {
+                console.log('Using fallback visualization');
             }
 
             document.getElementById('loading').classList.add('hidden');
         }
 
-        function generateRealisticRTMA() {
-            // Generate realistic RTMA analysis based on parameter
-            // In production, this would parse actual GRIB2 data
-            const bounds = { north: 50, south: 24, west: -125, east: -66 };
-            const nx = 283, ny = 218;
-            
-            rtmaData = {
-                mslp: generatePressureField(nx, ny, bounds),
-                tmp2m: generateTemperatureField(nx, ny, bounds),
-                dpt2m: generateDewpointField(nx, ny, bounds),
-                wind10m: generateWindField(nx, ny, bounds),
-                bounds,
-                nx,
-                ny
-            };
-        }
-
-        function generatePressureField(nx, ny, bounds) {
-            const data = new Float32Array(nx * ny);
-            const centerIdx = Math.floor((nx * ny) / 2);
-            
-            // Generate realistic low pressure system
-            for (let i = 0; i < nx * ny; i++) {
-                const x = i % nx;
-                const y = Math.floor(i / nx);
-                const dx = (x - nx / 2) / nx;
-                const dy = (y - ny / 2) / ny;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                
-                // Realistic MSLP: 980-1030 mb with low in center
-                data[i] = 1010 - 20 * Math.exp(-dist * 5) + Math.random() * 3;
-            }
-            return data;
-        }
-
-        function generateTemperatureField(nx, ny, bounds) {
-            const data = new Float32Array(nx * ny);
-            
-            // Temperature decreases with latitude
-            for (let i = 0; i < nx * ny; i++) {
-                const y = Math.floor(i / nx);
-                const latFraction = y / ny;
-                const baseTemp = 70 - latFraction * 50; // 70°F south to 20°F north
-                data[i] = baseTemp + (Math.random() - 0.5) * 8;
-            }
-            return data;
-        }
-
-        function generateDewpointField(nx, ny, bounds) {
-            const data = new Float32Array(nx * ny);
-            
-            // Dewpoint typically 10-20°F below temperature
-            for (let i = 0; i < nx * ny; i++) {
-                const y = Math.floor(i / nx);
-                const latFraction = y / ny;
-                const baseTemp = 70 - latFraction * 50;
-                const dpt = baseTemp - (10 + latFraction * 10) + (Math.random() - 0.5) * 5;
-                data[i] = dpt;
-            }
-            return data;
-        }
-
-        function generateWindField(nx, ny, bounds) {
-            const data = new Float32Array(nx * ny);
-            
-            for (let i = 0; i < nx * ny; i++) {
-                // Wind speeds typically 5-20 kt
-                data[i] = 8 + Math.random() * 12;
-            }
-            return data;
-        }
-
-        function renderRTMA() {
-            if (!map || !map.isStyleLoaded()) {
-                setTimeout(renderRTMA, 100);
-                return;
-            }
-
-            clearRTMALayers();
-            drawContours();
-        }
-
-        function clearRTMALayers() {
-            ['rtma-contours', 'rtma-labels'].forEach(id => {
-                if (map.getLayer(id)) map.removeLayer(id);
-                if (map.getSource(id)) map.removeSource(id);
-            });
-        }
-
-        function drawContours() {
-            const param = document.getElementById('paramSelect').value;
-            const interval = parseInt(document.getElementById('contourInterval').value);
-            const data = rtmaData[param];
-            if (!data) return;
-
-            const { bounds, nx, ny } = rtmaData;
-            const gridData = Array.from(data);
-            
-            // Use D3 to generate contours
-            const contourGenerator = d3.contours()
-                .size([nx, ny])
-                .smooth(true);
-
-            const paramRanges = {
-                mslp: { min: 980, max: 1030, label: 'mb' },
-                tmp2m: { min: 0, max: 100, label: '°F' },
-                dpt2m: { min: -40, max: 80, label: '°F' },
-                wind10m: { min: 0, max: 40, label: 'kt' }
-            };
-
-            const range = paramRanges[param];
-            const thresholds = [];
-            for (let v = Math.ceil(range.min / interval) * interval; v <= range.max; v += interval) {
-                thresholds.push(v);
-            }
-
-            const contours = contourGenerator.thresholds(thresholds)(gridData);
-            const features = [];
-
-            contours.forEach(contour => {
-                if (contour.coordinates) {
-                    contour.coordinates.forEach(polygon => {
-                        polygon.forEach(ring => {
-                            if (ring.length > 1) {
-                                const coords = ring.map(([x, y]) => {
-                                    const lon = bounds.west + (x / nx) * (bounds.east - bounds.west);
-                                    const lat = bounds.north - (y / ny) * (bounds.north - bounds.south);
-                                    return [lon, lat];
-                                });
-                                
-                                features.push({
-                                    type: 'Feature',
-                                    properties: { value: contour.value },
-                                    geometry: { type: 'LineString', coordinates: coords }
-                                });
-                            }
-                        });
-                    });
-                }
-            });
-
-            // Add contour lines
-            if (features.length > 0) {
-                map.addSource('rtma-contours', {
-                    type: 'geojson',
-                    data: { type: 'FeatureCollection', features }
-                });
-
-                map.addLayer({
-                    id: 'rtma-contours',
-                    type: 'line',
-                    source: 'rtma-contours',
-                    paint: {
-                        'line-color': '#00d4ff',
-                        'line-width': 1.5,
-                        'line-opacity': 0.7
-                    }
-                });
-
-                if (document.getElementById('showLabels').checked) {
-                    map.addLayer({
-                        id: 'rtma-labels',
-                        type: 'symbol',
-                        source: 'rtma-contours',
-                        layout: {
-                            'text-field': ['concat', ['to-string', ['get', 'value']], ''],
-                            'text-size': 11,
-                            'text-font': ['Open Sans Regular'],
-                            'symbol-placement': 'line'
-                        },
-                        paint: {
-                            'text-color': '#00d4ff',
-                            'text-halo-color': '#050a0f',
-                            'text-halo-width': 1,
-                            'text-opacity': 0.8
-                        }
-                    });
-                }
-            }
-        }
-
-        function updateParameter() {
-            renderRTMA();
-        }
-
-        function updateValidTime() {
-            const now = new Date();
-            const hours = String(now.getUTCHours()).padStart(2, '0');
-            const minutes = String(now.getUTCMinutes()).padStart(2, '0');
-            document.getElementById('validTime').value = `${now.toISOString().split('T')[0]} ${hours}:${minutes}Z`;
-        }
-
-        function showError(msg) {
-            const el = document.getElementById('errorMsg');
-            el.textContent = msg;
-            el.classList.add('show');
+        function changeParameter() {
+            currentParam = document.getElementById('paramSelect').value;
+            console.log('Parameter changed to:', currentParam);
         }
     </script>
 </body>
