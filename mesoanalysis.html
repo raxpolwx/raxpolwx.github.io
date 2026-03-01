@@ -4,19 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RTMA Mesoanalysis - RaxPol WX</title>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ESJNWTEMLQ"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-ESJNWTEMLQ');
-    </script>
-    <link rel="icon" type="image/png" href="Logo/jplogo.png">
-    <link rel="stylesheet" href="skew.css">
     <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css">
     <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="maplibreconfig.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -3505,29 +3495,30 @@
             // Show sounding button immediately
             actionsDiv.style.display = 'flex';
 
-            // Fetch extra parameters in background
-            try {
-                const res = await fetch(`${API}/point/${lat.toFixed(4)}/${lon.toFixed(4)}`);
-                if (res.ok) {
-                    const pointData = await res.json();
+            // Fetch extra parameters in background (disabled - requires API endpoint)
+             try {
+                 // const res = await fetch(`${API}/point/${lat.toFixed(4)}/${lon.toFixed(4)}`);
+                 // API endpoint not available for RTMA-only configuration
+                 if (false) {
+                     const pointData = {};
 
-                    // Display key parameters from server response in extras dropdown
-                    const displayParams = [
-                        { key: 'mlcape', name: 'ML CAPE', unit: 'J/kg', decimals: 0 },
-                        { key: 'mlcin', name: 'ML CIN', unit: 'J/kg', decimals: 0 },
-                        { key: 'srh01km', name: '0-1km SRH', unit: 'm²/s²', decimals: 0 },
-                        { key: 'estp', name: 'STP (Eff)', unit: '', decimals: 1 },
-                        { key: 'mllcl', name: 'ML LCL', unit: 'm', decimals: 0 },
-                        { key: 'lr03km', name: '0-3km Lapse', unit: '°C/km', decimals: 1 },
-                        { key: 't2m', name: '2m Temp', unit: '°F', decimals: 1 },
-                        { key: 'd2m', name: '2m Dewpt', unit: '°F', decimals: 1 }
-                    ];
+                     // Display key parameters from server response in extras dropdown
+                     const displayParams = [
+                         { key: 'mlcape', name: 'ML CAPE', unit: 'J/kg', decimals: 0 },
+                         { key: 'mlcin', name: 'ML CIN', unit: 'J/kg', decimals: 0 },
+                         { key: 'srh01km', name: '0-1km SRH', unit: 'm²/s²', decimals: 0 },
+                         { key: 'estp', name: 'STP (Eff)', unit: '', decimals: 1 },
+                         { key: 'mllcl', name: 'ML LCL', unit: 'm', decimals: 0 },
+                         { key: 'lr03km', name: '0-3km Lapse', unit: '°C/km', decimals: 1 },
+                         { key: 't2m', name: '2m Temp', unit: '°F', decimals: 1 },
+                         { key: 'd2m', name: '2m Dewpt', unit: '°F', decimals: 1 }
+                     ];
 
-                    let extrasHtml = '';
-                    for (const p of displayParams) {
-                        const val = pointData.parameters[p.key];
-                        if (val !== undefined && val !== null && isFinite(val)) {
-                            const formatted = p.decimals === 0 ? Math.round(val) : val.toFixed(p.decimals);
+                     let extrasHtml = '';
+                     for (const p of displayParams) {
+                         const val = pointData.parameters[p.key];
+                         if (val !== undefined && val !== null && isFinite(val)) {
+                             const formatted = p.decimals === 0 ? Math.round(val) : val.toFixed(p.decimals);
                             extrasHtml += `<div class="point-popup-value">
                                 <span class="point-popup-param">${p.name}</span>
                                 <span><span class="point-popup-num">${formatted}</span><span class="point-popup-unit">${p.unit}</span></span>
@@ -3573,25 +3564,21 @@
             loading.style.display = 'flex';
 
             try {
-                // Fetch profile data from server
-                const res = await fetch(`${API}/profile/${lat.toFixed(4)}/${lon.toFixed(4)}`);
-                if (!res.ok) throw new Error('Failed to fetch profile');
+                 // Fetch profile data from server (disabled - requires API endpoint)
+                 // const res = await fetch(`${API}/profile/${lat.toFixed(4)}/${lon.toFixed(4)}`);
+                 // API endpoint not available for RTMA-only configuration
+                 
+                 _soundingData = null;
 
-                _soundingData = await res.json();
-                _soundingData.lat = lat;
-                _soundingData.lon = lon;
+                 // Update subtitle with valid time
+                 let subtitle = `RTMA Analysis - ${lat.toFixed(2)}°N, ${Math.abs(lon).toFixed(2)}°W`;
+                 const now = new Date();
+                 const hours = now.getUTCHours().toString().padStart(2, '0');
+                 subtitle += ` | ${hours}Z`;
+                 coordsEl.textContent = subtitle;
 
-                // Update subtitle with valid time if available
-                let subtitle = `RAP Model - ${lat.toFixed(2)}°N, ${Math.abs(lon).toFixed(2)}°W`;
-                if (_soundingData.valid_time) {
-                    const vt = new Date(_soundingData.valid_time);
-                    const hours = vt.getUTCHours().toString().padStart(2, '0');
-                    subtitle += ` | ${hours}Z`;
-                }
-                coordsEl.textContent = subtitle;
-
-                // Send data to iframe for rendering using existing sounderapp.js
-                sendSoundingToIframe(_soundingData);
+                 // Sounding data not available in RTMA-only mode
+                 loading.style.display = 'none';
 
                 // Fallback: if iframe not ready yet, retry after a delay
                 if (!_soundingIframeReady) {
