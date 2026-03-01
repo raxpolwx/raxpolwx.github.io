@@ -483,7 +483,7 @@
         }
 
         /* Map */
-        #map { position: fixed; top: var(--nav-height); left: 0; right: 0; bottom: 0; cursor: crosshair; }
+        #map { position: fixed; top: 100px; left: 0; right: 0; bottom: 0; cursor: crosshair; }
         .maplibregl-ctrl-attrib { background: rgba(0,0,0,0.85) !important; padding: 4px 8px !important; font-size: 10px !important; border-radius: 4px !important; margin: 0 8px 8px 0 !important; }
         .maplibregl-ctrl-attrib a { color: #8af !important; }
         .maplibregl-ctrl-attrib.maplibregl-compact { min-height: 24px !important; }
@@ -493,7 +493,7 @@
         /* Settings Button */
         .settings-btn {
             position: fixed;
-            top: calc(var(--nav-height) + 16px);
+            top: 116px;
             right: 12px;
             z-index: 900;
             width: 40px;
@@ -1254,80 +1254,16 @@
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="nav">
-        <div class="nav-container">
-            <div class="nav-brand">
-                <img src="Logo/jplogo.png" alt="JP Logo" class="nav-logo">
-                <h1 class="nav-title">RTMA MESOANALYSIS</h1>
-            </div>
-            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-                <div class="hamburger-line"></div>
-                <div class="hamburger-line"></div>
-                <div class="hamburger-line"></div>
-            </button>
-            <div class="nav-buttons" id="navButtons">
-                <a href="index.html" class="nav-btn">Home</a>
-
-                <div class="nav-dropdown" data-section="Tropical">
-                    <button class="nav-dropdown-toggle">
-                        Tropical
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M6 9l6 6 6-6"/>
-                        </svg>
-                    </button>
-                    <div class="nav-dropdown-menu">
-                        <a href="tropical.html" class="nav-dropdown-item">Tropical Dashboard</a>
-                        <a href="live-recon.html" class="nav-dropdown-item">Live Recon</a>
-                        <a href="recon-archive.html" class="nav-dropdown-item">Hurricane Archive</a>
-                    </div>
-                </div>
-
-                <div class="nav-dropdown" data-section="Severe Weather">
-                    <button class="nav-dropdown-toggle">
-                        Severe Weather
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M6 9l6 6 6-6"/>
-                        </svg>
-                    </button>
-                    <div class="nav-dropdown-menu">
-                        <a href="mesoanalysis.html" class="nav-dropdown-item">Mesoanalysis (Beta)</a>
-                        <a href="soundings.html" class="nav-dropdown-item">Soundings</a>
-                        <a href="vwp-sandbox.html" class="nav-dropdown-item">VWP Sandbox</a>
-                    </div>
-                </div>
-
-                <div class="nav-dropdown" data-section="General Weather">
-                    <button class="nav-dropdown-toggle">
-                        General Weather
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M6 9l6 6 6-6"/>
-                        </svg>
-                    </button>
-                    <div class="nav-dropdown-menu">
-                        <a href="alerts.html" class="nav-dropdown-item">Weather Toolbox</a>
-                        <a href="stations.html" class="nav-dropdown-item">Stations</a>
-                        <a href="modeltiming.html" class="nav-dropdown-item">Model Timing</a>
-                        <a href="stormreports.html" class="nav-dropdown-item">Storm Reports</a>
-                    </div>
-                </div>
-
-                <div class="nav-dropdown" data-section="Space Weather">
-                    <button class="nav-dropdown-toggle">
-                        Space Weather
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M6 9l6 6 6-6"/>
-                        </svg>
-                    </button>
-                    <div class="nav-dropdown-menu">
-                        <a href="aurora.html" class="nav-dropdown-item">Space Weather Dashboard</a>
-                    </div>
-                </div>
-
-                <a href="support.html" class="nav-btn nav-support-btn">Support</a>
-            </div>
+    <!-- RaxPol WX Navigation -->
+    <header style="display: flex; align-items: center; justify-content: space-between; padding: 20px 30px; border-bottom: 1px solid #1a3a5c; backdrop-filter: blur(10px); background: rgba(5, 10, 15, 0.8); position: fixed; top: 0; left: 0; right: 0; z-index: 999; height: 60px;">
+        <div style="font-size: 1.3rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">
+            ⬡ RaxPol <span style="color: #00d4ff;">Meso</span>
         </div>
-    </nav>
+        <nav style="display: flex; gap: 20px; align-items: center;">
+            <a href="index.html" style="color: #5a8aaa; text-decoration: none; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.3s;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#5a8aaa'">← Back to Home</a>
+            <button onclick="logout()" style="padding: 8px 16px; background: transparent; border: 1px solid #5a8aaa; color: #5a8aaa; border-radius: 4px; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; transition: all 0.3s;" onmouseover="this.style.borderColor='#ff6b6b'; this.style.color='#ff6b6b'" onmouseout="this.style.borderColor='#5a8aaa'; this.style.color='#5a8aaa'">Logout</button>
+        </nav>
+    </header>
 
     <!-- Map -->
     <div id="map"></div>
@@ -1655,12 +1591,28 @@
             </div>
         </div>
         <div class="sounding-popup-content">
-            <iframe id="soundingIframe" src="sounding-embed.html" style="width: 100%; height: 100%; border: none; background: #0d0d0d;"></iframe>
+            <div id="soundingContent" style="width: 100%; height: 100%; background: #0d0d0d;"></div>
             <div class="sounding-loading" id="soundingLoading" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(13,13,13,0.95); color: #888;">Loading profile...</div>
         </div>
     </div>
 
     <script>
+        // ══════════════════════════════════════════════════════════════
+        // AUTHENTICATION
+        // ══════════════════════════════════════════════════════════════
+        window.addEventListener('DOMContentLoaded', function() {
+            if (!sessionStorage.getItem('raxpolwx_loggedIn')) {
+                window.location.href = 'index.html';
+            }
+        });
+
+        function logout() {
+            if (confirm('Logout?')) {
+                sessionStorage.removeItem('raxpolwx_loggedIn');
+                window.location.href = 'index.html';
+            }
+        }
+
         // ══════════════════════════════════════════════════════════════
         // UI FUNCTIONS
         // ══════════════════════════════════════════════════════════════
@@ -5845,7 +5797,15 @@
             saveSettings();
         });
 
-        map = createPettusMap('map', { globe: false, terrain: false, navigationControl: false, attributionControl: true });
+        // Initialize maplibre map
+        map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+            center: [-98, 39],
+            zoom: 4,
+            pitch: 0,
+            bearing: 0
+        });
 
         map.on('load', () => {
             const allLayers = map.getStyle().layers;
